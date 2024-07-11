@@ -11,7 +11,8 @@ function App() {
   const [question, setQuestion] = useState("");
   const [dark, setDark] = useState(false);
 
-  const apiUrl = process.env.REACT_APP_API_KEY;
+  const apiUrl =
+    process.env.REACT_APP_API_KEY || "AIzaSyC5pInfW-ZWvf8uqHrmAmqy93C6q9xug8o";
 
   const fetchData = async (e) => {
     setAnswer("");
