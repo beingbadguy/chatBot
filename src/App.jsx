@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Typewriter from "typewriter-effect";
-import { CiDark } from "react-icons/ci";
-import { CiLight } from "react-icons/ci";
+import { CiDark, CiLight } from "react-icons/ci";
 import { Triangle } from "react-loader-spinner";
 
 function App() {
@@ -10,12 +8,16 @@ function App() {
   const [loader, setLoader] = useState(false);
   const [question, setQuestion] = useState("");
   const [dark, setDark] = useState(false);
+  const [text, setText] = useState([]);
+  const [index, setIndex] = useState(0);
 
   const apiUrl =
     process.env.REACT_APP_API_KEY || "AIzaSyC5pInfW-ZWvf8uqHrmAmqy93C6q9xug8o";
 
-  const fetchData = async (e) => {
+  const fetchData = async () => {
     setAnswer("");
+    setText([]);
+    setIndex(0);
     try {
       setLoader(true);
       const response = await axios({
@@ -30,16 +32,36 @@ function App() {
       setQuestion("");
     } catch (err) {
       console.log(err.message);
+      setLoader(false);
     }
   };
+
   useEffect(() => {
-    const what = localStorage.getItem("mode");
-    if (what === "true") {
+    const mode = localStorage.getItem("mode");
+    if (mode === "true") {
       setDark(true);
     } else {
       setDark(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (answer) {
+      const interval = setInterval(() => {
+        setText((prev) => {
+          if (index < answer.length) {
+            setIndex(index + 1);
+            return [...prev, answer[index]];
+          } else {
+            clearInterval(interval);
+            return prev;
+          }
+        });
+      }, 10);
+
+      return () => clearInterval(interval);
+    }
+  }, [answer, index]);
 
   return (
     <div
@@ -59,7 +81,7 @@ function App() {
               className="text-2xl font-bold  cursor-pointer"
               onClick={() => {
                 setDark(!dark);
-                localStorage.setItem("mode", false);
+                localStorage.setItem("mode", !dark);
               }}
             />
           ) : (
@@ -67,7 +89,7 @@ function App() {
               className="text-2xl font-bold cursor-pointer"
               onClick={() => {
                 setDark(!dark);
-                localStorage.setItem("mode", true);
+                localStorage.setItem("mode", !dark);
               }}
             />
           )}
@@ -81,8 +103,6 @@ function App() {
             width="80"
             color={dark ? "white" : "black"}
             ariaLabel="triangle-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
             className="mt-5"
           />
         ) : null}
@@ -98,7 +118,7 @@ function App() {
           } transition-all duration-500 text-black p-4 w-[100%] text-wrap min-h-[66vh]`}
           id="answer"
         >
-          {answer}
+          {text.join("")}
         </pre>
       </div>
       <div
@@ -109,11 +129,8 @@ function App() {
         } transition-all duration-500 w-[100%] border-t-2 flex items-center justify-center gap-5 fixed bottom-0 p-4`}
       >
         <textarea
-          type="text"
           value={question}
-          onChange={(e) => {
-            setQuestion(e.target.value);
-          }}
+          onChange={(e) => setQuestion(e.target.value)}
           cols={30}
           rows={2}
           className={` ${
