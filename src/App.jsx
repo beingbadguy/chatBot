@@ -4,7 +4,7 @@ import { CiDark, CiLight } from "react-icons/ci";
 import { Triangle } from "react-loader-spinner";
 
 function App() {
-  const [answer, setAnswer] = useState("");
+  const [answer, setAnswer] = useState("Ask me anything...");
   const [loader, setLoader] = useState(false);
   const [question, setQuestion] = useState("");
   const [dark, setDark] = useState(false);
